@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "7855033765",
+    "project_id": "motabea-de8bc",
+    "storage_bucket": "motabea-de8bc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:7855033765:android:249e8cdace684f46e42c4c",
+        "android_client_info": {
+          "package_name": "com.motabea.motabea"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "7855033765-3husg7dekj89hvj0h8h7n73nf05785vu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.motabea.motabea",
+            "certificate_hash": "f1e85c0aa2fa500c6982728e0f220d4042611dbf"
+          }
+        },
+        {
+          "client_id": "7855033765-n96elat8rpcdffe2t6q40f2fiplu8pja.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrgBClCgYRZCD6_ciD4-C5IdIAi8D1gUk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "7855033765-n96elat8rpcdffe2t6q40f2fiplu8pja.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
