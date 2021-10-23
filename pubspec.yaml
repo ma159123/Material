@@ -79,7 +79,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.9.2
 
 flutter_icons:
-  image_path: "assets/images/icons8-student-64.png" 
+  image_path: "assets/images/study2.png" 
   android: true
   ios: true
 
