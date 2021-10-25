@@ -1,14 +1,17 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:motabea/layout/motabea_app/cubit/states.dart';
+import 'package:motabea/models/lec_model.dart';
 import 'package:motabea/models/lecture_model.dart';
 import 'package:motabea/models/subject_model.dart';
 import 'package:motabea/modules/pdf_view.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:dropbox_client/dropbox_client.dart';
 
 class MotabeaCubit extends Cubit<MotabeaStates> {
   MotabeaCubit() : super(MotabeaInitialState());
@@ -25,42 +28,42 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
     'level four',
   ];
 
-  List<bool> isVisible=[false,false,false,false];
+  List<bool> isVisible = [false, false, false, false];
 
   void changeVisibility() {
     isVisible[0] = !isVisible[0];
+    // print(isVisible[0]);
     emit(AppChangeVisibilitySuccessState());
   }
 
   void changeVisibil() {
     isVisible[1] = !isVisible[1];
-    emit(AppChangeVisibilitySuccessState());
+    emit(AppChangeVisibilSuccessState());
   }
 
   void changeVisib() {
     isVisible[2] = !isVisible[2];
-    emit(AppChangeVisibilitySuccessState());
+    emit(AppChangeVisibSuccessState());
   }
 
   void changeVisi() {
     isVisible[3] = !isVisible[3];
-    emit(AppChangeVisibilitySuccessState());
+    emit(AppChangeVisiSuccessState());
   }
 
   SubjectModel? subjectModel;
   List<SubjectModel> listSubject = [
     SubjectModel(
-      name: 'math',
-      icon: 'assets/images/math.png',
-
+      name: 'English',
+      icon: 'assets/images/literature.png',
     ),
     SubjectModel(
-      name: 'program',
+      name: 'programmig',
       icon: 'assets/images/programming.png',
     ),
     SubjectModel(
-      name: 'english',
-      icon: 'assets/images/literature.png',
+      name: 'math',
+      icon: 'assets/images/math.png',
     ),
     SubjectModel(
       name: 'physics',
@@ -77,13 +80,37 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
   ];
 
   LectureModel? lectureModel;
-  late List<LectureModel>listLecture=[
-    LectureModel(lec_name: lec[0]['lec_name'], lec_date: lec[0]['lec_date'], lec_material: lec[0]['lec_material'],),
-    LectureModel(lec_name: lec[1]['lec_name'],  lec_date: lec[1]['lec_date'], lec_material: lec[1]['lec_material'],),
-    LectureModel(lec_name: lec[2]['lec_name'],  lec_date: lec[2]['lec_date'], lec_material: lec[2]['lec_material'],),
-    LectureModel(lec_name: lec[0]['lec_name'],  lec_date: lec[0]['lec_date'], lec_material: lec[0]['lec_material'],),
-    LectureModel(lec_name: lec[1]['lec_name'],  lec_date: lec[1]['lec_date'], lec_material: lec[1]['lec_material'],),
-    LectureModel(lec_name: lec[2]['lec_name'],  lec_date: lec[2]['lec_date'], lec_material: lec[2]['lec_material'],),
+  late List<LectureModel> listLecture = [
+    LectureModel(
+      lec_name: lec[0]['lec_name'],
+      lec_date: lec[0]['lec_date'],
+      lec_material: lec[0]['lec_material'],
+    ),
+    LectureModel(
+      lec_name: lec[1]['lec_name'],
+      lec_date: lec[1]['lec_date'],
+      lec_material: lec[1]['lec_material'],
+    ),
+    LectureModel(
+      lec_name: lec[2]['lec_name'],
+      lec_date: lec[2]['lec_date'],
+      lec_material: lec[2]['lec_material'],
+    ),
+    LectureModel(
+      lec_name: lec[0]['lec_name'],
+      lec_date: lec[0]['lec_date'],
+      lec_material: lec[0]['lec_material'],
+    ),
+    LectureModel(
+      lec_name: lec[1]['lec_name'],
+      lec_date: lec[1]['lec_date'],
+      lec_material: lec[1]['lec_material'],
+    ),
+    LectureModel(
+      lec_name: lec[2]['lec_name'],
+      lec_date: lec[2]['lec_date'],
+      lec_material: lec[2]['lec_material'],
+    ),
   ];
 
   List<String> assetsPdf = [
@@ -144,24 +171,86 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
     }
   }
 
-  List lec=[];
-void  getLecture()async
-{
-  //lec=[];
-    FirebaseFirestore.instance
-      .collection('lectures').get().then((value){
-       value.docs.forEach((element) {
+  List lec = [];
+
+  void getLecture() async {
+    //lec=[];
+    FirebaseFirestore.instance.collection('lectures').get().then((value) {
+      value.docs.forEach((element) {
         // print(element.data());
-         lec.add(element.data());
-       //  LectureModel(lec_material: lec[element]['lec_material'], lec_date: '', lec_name: '');
-       });
-
-       print(lec.length);
-       print( lec[0]['lec_material']);
-     }).catchError((error){
-       print(error.toString());
-
+        lec.add(element.data());
+        //  LectureModel(lec_material: lec[element]['lec_material'], lec_date: '', lec_name: '');
+      });
+      emit(GetLectureSuccessState());
+      print(lec.length);
+      // print( lec[0]['lec_material']);
+    }).catchError((error) {
+      print(error.toString());
+      emit(GetLectureErrorState());
     });
-}
+  }
 
+  /*late List<LecModel> listLec = [
+    LecModel(
+      cs: '', english: '', math: '', ethics: '', physics: '', programming: '',
+    ),
+    LecModel(
+      cs: '', english: '', math: '', ethics: '', physics: '', programming: '',
+    ),
+    LecModel(
+      cs: '', english: '', math: '', ethics: '', physics: '', programming: '',
+    ),
+    LecModel(
+      cs: '', english: '', math: '', ethics: '', physics: '', programming: '',
+    ),
+    LecModel(
+      cs: '', english: '', math: '', ethics: '', physics: '', programming: '',
+    ),
+    LecModel(
+      cs: '', english: '', math: '', ethics: '', physics: '', programming: '',
+    ),
+  ];*/
+
+  List<LecModel> lecturesList = [];
+  List lecture = ['English', 'Programming'];
+
+  void getLec(int index) async {
+    lecturesList = [];
+    FirebaseFirestore.instance.collection(lecture[index]).get().then((value) {
+      value.docs.forEach((element) {
+        lecturesList.add(LecModel.fromJson(element.data()));
+      });
+      emit(GetLecSuccessState());
+      print(lecturesList.length);
+    }).catchError((error) {
+      print(error.toString());
+      emit(GetLecErrorState());
+    });
+  }
+
+  Future<String> downloadFile(String url, String fileName) async {
+    var dirDictionary = await getApplicationDocumentsDirectory();
+    String dir = dirDictionary.path;
+    HttpClient httpClient = new HttpClient();
+    File file;
+    String filePath = '';
+    String myUrl = '';
+
+    try {
+      myUrl = url + '/' + fileName;
+      var request = await httpClient.getUrl(Uri.parse(myUrl));
+      var response = await request.close();
+      if (response.statusCode == 200) {
+        var bytes = await consolidateHttpClientResponseBytes(response);
+        filePath = '$dir/$fileName';
+        file = File(filePath);
+        await file.writeAsBytes(bytes);
+      } else
+        filePath = 'Error code: ' + response.statusCode.toString();
+    } catch (ex) {
+      filePath = 'Can not fetch url';
+    }
+
+    return filePath;
+  }
 }

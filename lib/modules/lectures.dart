@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/services.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:motabea/layout/motabea_app/cubit/cubit.dart';
 import 'package:motabea/layout/motabea_app/cubit/states.dart';
 import 'package:motabea/modules/pdf_view.dart';
+
+import '../layout/motabea_app/cubit/cubit.dart';
 
 class LecturesScreen extends StatelessWidget {
   late String image;
@@ -18,8 +19,8 @@ class LecturesScreen extends StatelessWidget {
       builder: (BuildContext context, state) {
         //declarations
         MotabeaCubit cubit = MotabeaCubit.getCubitObj(context);
-        double width = MediaQuery.of(context).size.width;
-        double height = MediaQuery.of(context).size.height;
+       // double width = MediaQuery.of(context).size.width;
+        //double height = MediaQuery.of(context).size.height;
 
         return SafeArea(
           child: Scaffold(
@@ -46,7 +47,7 @@ class LecturesScreen extends StatelessWidget {
                       mainAxisSpacing: 4.0,
                       crossAxisSpacing: 4.0,
                       children: List.generate(
-                          cubit.lec.length,
+                          cubit.lecturesList.length,
                               (index) => InkWell(
                                 child: Card(
                             elevation: 2.0,
@@ -80,7 +81,7 @@ class LecturesScreen extends StatelessWidget {
                                       height: 5.0,
                                     ),
                                     Text(
-                                      cubit.lec[index]['lec_name'],
+                                      cubit.lecturesList[index].lec_name,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -95,7 +96,7 @@ class LecturesScreen extends StatelessWidget {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            cubit.lec[index]['lec_date'],
+                                            cubit.lecturesList[index].lec_date,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
@@ -121,15 +122,17 @@ class LecturesScreen extends StatelessWidget {
                                 ),
                             ),
                           ),
-                                onTap: (){
+                                onTap: ()async{
+                                  print(cubit.lecturesList[index].lec_material);
+
                                    Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                        builder: (context) => PdfView(
-                                             path: cubit.lec[index]['lec_material']),
+                                             path: cubit.lecturesList[index].lec_material)
                                        ));
 
-                                   print('${cubit.lec[index]['lec_material']}');
+                                   print('************** ${cubit.lec[index]['lec_material']}');
                                 },
                               ))),
                 )

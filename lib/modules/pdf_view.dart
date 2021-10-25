@@ -22,7 +22,7 @@ class _PdfViewState extends State<PdfView> {
     // PDFViewController pdfViewController=0 as PDFViewController;
     return BlocConsumer<MotabeaCubit, MotabeaStates>(
       listener: (BuildContext context, state) {},
-      builder: (BuildContext context, Object? state) {
+      builder: (BuildContext context,  state) {
         return Scaffold(
             appBar: AppBar(
               title: Text('my pdf'),

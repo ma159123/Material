@@ -75,14 +75,16 @@ Widget buildVisibleBottom({
   required String title,
   required Function() onPressed,
   required bool isVisible,
+  required double width,
+  required double height,
 }) =>
     Visibility(
       visible: isVisible,
       child: Center(
         child: Container(
           margin: EdgeInsets.only(bottom: 15.0),
-          width: 180.0,
-          height: 50.0,
+          width: width,        //180.0,
+          height:height ,        //50.0,
           child: MaterialButton(
             onPressed: onPressed,
             child: Text(

@@ -69,6 +69,8 @@ dependencies:
   path_provider: ^2.0.5
   http: ^0.13.4
   syncfusion_flutter_pdfviewer_web: ^19.3.45-beta
+  dropbox_client: ^0.8.0
+
 
 
 

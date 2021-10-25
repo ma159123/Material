@@ -10,7 +10,7 @@ class MaterialHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MotabeaCubit cubit = MotabeaCubit.getCubitObj(context);
-    List<bool> isVisible=[cubit.isVisible[0],cubit.isVisible[1],cubit.isVisible[2],cubit.isVisible[3]];
+   // List<bool> isVisible=[cubit.isVisible[0],cubit.isVisible[1],cubit.isVisible[2],cubit.isVisible[3]];
 
 
     return BlocProvider(
@@ -59,89 +59,77 @@ class MaterialHomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  
                   buildDrawerItem(
                       onTap: () {
                         cubit.changeVisibility();
-
+                      //  print(isVisible[0]);
                       },
                       title: 'Level one'),
-                  SizedBox(
-                    height: 15.0,
-                  ),
+
+
                   buildVisibleDrawerItem(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () {Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => MaterialHomeScreen(),
-                            ));
-                      },
-                      title: 'general',
-                      isVisible: isVisible[0]),
+                            ));}, title: 'general', isVisible: cubit.isVisible[0]),
                   buildVisibleDrawerItem(
-                      onPressed: () {
-
-                      }, title: 'bio', isVisible: isVisible[0]),
+                      onPressed: () {}, title: 'bio', isVisible: cubit.isVisible[0]),
                   buildVisibleDrawerItem(
-                      onPressed: () {}, title: 'AI', isVisible: isVisible[0]),
+                      onPressed: () {}, title: 'AI', isVisible: cubit.isVisible[0]),
                   buildDrawerItem(
                       onTap: () {
                         cubit.changeVisibil();
 
                       },
                       title: 'Level two'),
+
                   buildVisibleDrawerItem(
-                      onPressed: () {}, title: 'general', isVisible: isVisible[1]),
+                      onPressed: () {}, title: 'general', isVisible: cubit.isVisible[1]),
                   buildVisibleDrawerItem(
-                      onPressed: () {}, title: 'bio', isVisible: isVisible[1]),
+                      onPressed: () {}, title: 'bio', isVisible: cubit.isVisible[1]),
                   buildVisibleDrawerItem(
-                      onPressed: () {}, title: 'AI', isVisible: isVisible[1]),
+                      onPressed: () {}, title: 'AI', isVisible: cubit.isVisible[1]),
                   buildDrawerItem(
                       onTap: () {
                         cubit.changeVisib();
                       },
                       title: 'Level three'),
+
                   buildVisibleDrawerItem(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MaterialHomeScreen(),
-                            ));
-                      },
-                      title: 'general',
-                      isVisible: isVisible[2]),
+                      onPressed: () {}, title: 'general', isVisible: cubit.isVisible[2]),
                   buildVisibleDrawerItem(
-                      onPressed: () {
-                        cubit.changeVisib();
-                      },
-                      title: 'bio',
-                      isVisible: isVisible[2]),
+                      onPressed: () {}, title: 'bio', isVisible: cubit.isVisible[2]),
                   buildVisibleDrawerItem(
-                      onPressed: () {}, title: 'AI', isVisible: isVisible[2]),
+                      onPressed: () {}, title: 'AI', isVisible: cubit.isVisible[2]),
                   buildDrawerItem(
                       onTap: () {
                         cubit.changeVisi();
                       },
                       title: 'Level four'),
+                 /* Padding(
+                    padding: const EdgeInsets.all( 10.0),
+                    child: Row(
+                      children: [
+                        buildVisibleBottom(
+                            onPressed: () {},
+                            title: 'term 1',
+                            isVisible: cubit.isVisible[0], height: 50, width:130),
+
+                        buildVisibleBottom(
+                            onPressed: () {},
+                            title: 'term 2',
+                            isVisible: cubit.isVisible[0], height: 50, width:130),
+                      ],
+                    ),
+                  ),*/
                   buildVisibleDrawerItem(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MaterialHomeScreen(),
-                            ));
-                      },
-                      title: 'general',
-                      isVisible: isVisible[3]),
+                      onPressed: () {}, title: 'general', isVisible: cubit.isVisible[3]),
                   buildVisibleDrawerItem(
-                      onPressed: () {
-                        cubit.changeVisib();
-                      },
-                      title: 'bio',
-                      isVisible: isVisible[3]),
+                      onPressed: () {}, title: 'bio', isVisible: cubit.isVisible[3]),
                   buildVisibleDrawerItem(
-                      onPressed: () {}, title: 'AI', isVisible: isVisible[3]),
+                      onPressed: () {}, title: 'AI', isVisible: cubit.isVisible[3]),
                 ],
               ),
             ),
@@ -187,11 +175,11 @@ class MaterialHomeScreen extends StatelessWidget {
                             //           path: MotabeaCubit.getCubitObj(context)
                             //               .assets[index]),
                             //     ));
-
+                            //if(cubit.ll.length==0)
+                            cubit.getLec(index);
+                          //  if(cubit.lec.length!=0)
                             navigateTo(
-                                context: context, screen: LecturesScreen(image: 'https://images.twinkl.co.uk/tw1n/image/private/t_630/image_repo/c5/97/t-t-2249-materials-display-banner_ver_2.jpg',));
-                         cubit.getLecture();
-
+                                context: context, screen: LecturesScreen(image:'https://images.twinkl.co.uk/tw1n/image/private/t_630/image_repo/c5/97/t-t-2249-materials-display-banner_ver_2.jpg',));
                           },
                           child: Column(
                             children: [
@@ -214,7 +202,7 @@ class MaterialHomeScreen extends StatelessWidget {
                                 cubit.listSubject[index].name,
                                 style: TextStyle(
                                     color: Colors.black,
-                                    fontSize: 25,
+                                    fontSize: 23,
                                     fontWeight: FontWeight.bold),
                               ),
                             ],

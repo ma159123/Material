@@ -65,30 +65,26 @@ class InformScreen extends StatelessWidget {
                         cubit.changeVisibility();
                       },
                       title: 'level one'),
+
                   SizedBox(
                     height: 15,
                   ),
                   buildVisibleBottom(
                       onPressed: () {
                         submit();
-                      /*  Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MaterialHomeScreen(),
-                            ));*/
-                      },
+                        },
                       title: 'general',
-                      isVisible: isVisible[0]),
+                      isVisible: isVisible[0], height: 50, width:180),
                   buildVisibleBottom(
                       onPressed: () async {},
                       title: 'bio',
-                      isVisible: isVisible[0]),
+                      isVisible: isVisible[0], height: 50, width:180),
                   buildVisibleBottom(
                       onPressed: () {
                       /*  MotabeaCubit.getCubitObj(context)
                             .getFileFromAsset('assets/images/week 1.pdf')
                             .then((value) {});*/
-                      }, title: 'AI', isVisible: isVisible[0]),
+                      }, title: 'AI', isVisible: isVisible[0], height: 50, width:180),
                   buildLoginBottom(
                       onPressed: () {
                         cubit.changeVisibil();
@@ -98,11 +94,11 @@ class InformScreen extends StatelessWidget {
                     height: 15,
                   ),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'general', isVisible: isVisible[1]),
+                      onPressed: () {}, title: 'general', isVisible: isVisible[1], height: 50, width:180 ),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'bio', isVisible: isVisible[1]),
+                      onPressed: () {}, title: 'bio', isVisible: isVisible[1], height: 50, width:180 ),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'AI', isVisible: isVisible[1]),
+                      onPressed: () {}, title: 'AI', isVisible: isVisible[1], height: 50, width:180 ),
                   buildLoginBottom(
                       onPressed: () {
                         cubit.changeVisib();
@@ -112,11 +108,11 @@ class InformScreen extends StatelessWidget {
                     height: 15,
                   ),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'general', isVisible: isVisible[2]),
+                      onPressed: () {}, title: 'general', isVisible: isVisible[2], height: 50, width:180),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'bio', isVisible: isVisible[2]),
+                      onPressed: () {}, title: 'bio', isVisible: isVisible[2], height: 50, width:180),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'AI', isVisible: isVisible[2]),
+                      onPressed: () {}, title: 'AI', isVisible: isVisible[2], height: 50, width:180),
                   buildLoginBottom(
                       onPressed: () {
                         cubit.changeVisi();
@@ -126,11 +122,11 @@ class InformScreen extends StatelessWidget {
                     height: 15,
                   ),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'general', isVisible: isVisible[3]),
+                      onPressed: () {}, title: 'general', isVisible: isVisible[3], height: 50, width:180),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'bio', isVisible: isVisible[3]),
+                      onPressed: () {}, title: 'bio', isVisible: isVisible[3], height: 50, width:180),
                   buildVisibleBottom(
-                      onPressed: () {}, title: 'AI', isVisible: isVisible[3]),
+                      onPressed: () {}, title: 'AI', isVisible: isVisible[3], height: 50, width:180),
                 ],
               ),
             ),
