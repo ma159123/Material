@@ -13,13 +13,11 @@ class LecturesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<MotabeaCubit, MotabeaStates>(
-      listener: (context, state) {
-
-      },
+      listener: (context, state) {},
       builder: (BuildContext context, state) {
         //declarations
         MotabeaCubit cubit = MotabeaCubit.getCubitObj(context);
-       // double width = MediaQuery.of(context).size.width;
+        // double width = MediaQuery.of(context).size.width;
         //double height = MediaQuery.of(context).size.height;
 
         return SafeArea(
@@ -48,91 +46,99 @@ class LecturesScreen extends StatelessWidget {
                       crossAxisSpacing: 4.0,
                       children: List.generate(
                           cubit.lecturesList.length,
-                              (index) => InkWell(
+                          (index) => InkWell(
                                 child: Card(
-                            elevation: 2.0,
-                            color: HexColor('#43dd86'),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black54,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      height: 30.0,
-                                      width: 30.0,
-                                      child: Text(
-                                        '${index + 1}',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 25,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 5.0,
-                                    ),
-                                    Text(
-                                      cubit.lecturesList[index].lec_name,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Spacer(),
-                                    Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                  elevation: 2.0,
+                                  color: HexColor('#43dd86'),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black54,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          height: 30.0,
+                                          width: 30.0,
                                           child: Text(
-                                            cubit.lecturesList[index].lec_date,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                            '${index + 1}',
+                                            textAlign: TextAlign.center,
                                             style: TextStyle(
-                                              fontSize: 10,
+                                              fontSize: 25,
                                               color: Colors.white,
                                             ),
                                           ),
                                         ),
-                                        Align(
-                                          widthFactor: 0.5,
-                                          heightFactor: 0.5,
-                                          child: IconButton(
-                                              padding: EdgeInsets.zero,
-                                                                  onPressed: () {},
-                                              icon: Icon(
-                                                Icons.download_for_offline,
-                                                size: 25.0,
-                                              )),
+                                        SizedBox(
+                                          height: 5.0,
+                                        ),
+                                        Text(
+                                          cubit.lecturesList[index].lec_name,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                cubit.lecturesList[index]
+                                                    .lec_date,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                            Align(
+                                              widthFactor: 0.5,
+                                              heightFactor: 0.5,
+                                              child: IconButton(
+                                                  padding: EdgeInsets.zero,
+                                                  onPressed: () {},
+                                                  icon: Icon(
+                                                    Icons.download_for_offline,
+                                                    size: 25.0,
+                                                  )),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                            ),
-                          ),
-                                onTap: ()async{
-                                  print(cubit.lecturesList[index].lec_material);
+                                onTap: () async {
+                                  // print(cubit.lecturesList[index].lec_material);
+                                  await cubit.loadNetwork(
+                                      'https://dl.dropboxusercontent.com/s/4xpn83yrebdcngo/Programming%202%20-%20Lecture%203.pdf?dl=0');
 
-                                   Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                       builder: (context) => PdfView(
-                                             path: cubit.lecturesList[index].lec_material)
-                                       ));
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PdfView(
+                                        path: cubit.filePath,
+                                      ),
+                                    ),
+                                  );
 
-                                   print('************** ${cubit.lec[index]['lec_material']}');
+                                  // print(
+                                  //     '************** ${cubit.lec[index]['lec_material']}');
+                                  print(
+                                      '******filepath******** ${cubit.filePath}');
                                 },
                               ))),
                 )
@@ -144,4 +150,3 @@ class LecturesScreen extends StatelessWidget {
     );
   }
 }
-

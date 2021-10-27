@@ -8,10 +8,12 @@ import 'package:motabea/layout/motabea_app/cubit/states.dart';
 import 'package:motabea/models/lec_model.dart';
 import 'package:motabea/models/lecture_model.dart';
 import 'package:motabea/models/subject_model.dart';
+import 'package:motabea/models/topics_model.dart';
 import 'package:motabea/modules/pdf_view.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:dropbox_client/dropbox_client.dart';
+import 'package:sqflite/sqflite.dart';
 
 class MotabeaCubit extends Cubit<MotabeaStates> {
   MotabeaCubit() : super(MotabeaInitialState());
@@ -252,5 +254,190 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
     }
 
     return filePath;
+  }
+
+  Future<File> loadNetwork(String url) async {
+    final response = await http.get(Uri.parse(url));
+    final bytes = response.bodyBytes;
+
+    return _storeFile(url, bytes);
+  }
+
+  String filePath = "";
+  Future<File> _storeFile(String url, List<int> bytes) async {
+    final filename = basename(url);
+    final dir = await getApplicationDocumentsDirectory();
+
+    final file = File('${dir.path}/$filename');
+    await file.writeAsBytes(bytes, flush: true);
+    filePath = file.path;
+    return file;
+  }
+
+  ///
+  ///
+
+  Database? dataB;
+  List<TopicsModel> topics = [];
+  // Map<String,TopicsModel> topics = {};
+  // Map<String, List<LecModel>> subjects = {};
+  List<LecModel> subjects = [];
+
+  void createDatabase() {
+    openDatabase(
+      'materials.db',
+      version: 1,
+      onCreate: (dataB, version) {
+        // id integer
+        // title String
+        // date String
+        // time String
+        // status String
+        print('database created');
+
+        //creating topics table
+
+        dataB
+            .execute(
+                'CREATE TABLE topics (id INTEGER PRIMARY KEY, topic_grade INTEGER, topic_term INTEGER, topic_name TEXT)')
+            .then((value) {
+          print(' topic table created');
+        }).catchError((error) {
+          print('Error When Creating topic Table ${error.toString()}');
+        });
+        //creating subjects table
+        dataB
+            .execute(
+                'CREATE TABLE subjects (id INTEGER PRIMARY KEY, lec_date TEXT, lec_material TEXT, lec_name TEXT, isDownloaded BOOLEAN)')
+            .then((value) {
+          print('Subject table created');
+        }).catchError((error) {
+          print('Error When Creating Subject Table ${error.toString()}');
+        });
+      },
+      onOpen: (database) {
+        getDataFromDatabase(database);
+        getTopics();
+        print('database opened');
+      },
+    ).then((value) {
+      dataB = value;
+      emit(AppCreateDatabaseState());
+    });
+  }
+
+  fun() {} //to avoid Future txn return type
+
+  // topic_grade INTEGER, topic_term INTEGER, topic_name TEXT
+  insertToTopics({
+    required int topic_grade,
+    required int topic_term,
+    required String topic_name,
+  }) async {
+    await dataB!.transaction((txn) {
+      txn
+          .rawInsert(
+        'INSERT INTO topics(topic_grade, topic_term, topic_name) VALUES("$topic_grade", "$topic_term", "$topic_name")',
+      )
+          .then((value) {
+        print('$value inserted successfully');
+        emit(AppInsertDatabaseState());
+
+        getDataFromDatabase(dataB!);
+      }).catchError((error) {
+        print('Error When Inserting New Record ${error.toString()}');
+      });
+
+      return Future.delayed(Duration(microseconds: 1));
+    });
+  }
+
+  // lec_date TEXT, lec_material TEXT, lec_name TEXT, isDownloaded BOOLEAN
+
+  insertToSubjects({
+    String lec_date = '',
+    required String lec_material,
+    required String lec_name,
+    bool isDownloaded = false,
+  }) async {
+    await dataB!.transaction((txn) {
+      txn
+          .rawInsert(
+        'INSERT INTO subjects(lec_date, lec_material, lec_name, isDownloaded) VALUES("$lec_date", "$lec_material", "$lec_name", $isDownloaded)',
+      )
+          .then((value) {
+        print('$value inserted successfully');
+        emit(AppInsertDatabaseState());
+
+        getDataFromDatabase(dataB!);
+      }).catchError((error) {
+        print('Error When Inserting New Record ${error.toString()}');
+      });
+
+      return Future(fun());
+    });
+  }
+
+  void getDataFromDatabase(Database dataB) {
+    topics = [];
+    subjects = [];
+
+    emit(AppGetDatabaseLoadingState());
+
+    // returns a List<Map>  = Json or table ,,,
+    // map<String, dynamic> = record
+    dataB.rawQuery('SELECT * FROM topics').then((recordsJson) {
+      recordsJson.forEach((record) {
+        topics.add(TopicsModel.fromJson(record));
+        print('record*********** $record');
+        print('recordFromLocal*********** ${topics[0].topic_name}');
+      });
+
+      emit(AppGetDatabaseState());
+    });
+  }
+
+  // void updateData({
+  //   @required String status,
+  //   @required int id,
+  // }) async {
+  //   database.rawUpdate(
+  //     'UPDATE tasks SET status = ? WHERE id = ?',
+  //     ['$status', id],
+  //   ).then((value) {
+  //     getDataFromDatabase(database);
+  //     emit(AppUpdateDatabaseState());
+  //   });
+  // }
+
+  // void deleteData({
+  //   @required int id,
+  // }) async {
+  //   database.rawDelete('DELETE FROM tasks WHERE id = ?', [id]).then((value) {
+  //     getDataFromDatabase(database);
+  //     emit(AppDeleteDatabaseState());
+  //   });
+  // }
+
+  List<TopicsModel> topicsList = [];
+  void getTopics() async {
+    topicsList = [];
+    FirebaseFirestore.instance.collection('topics').get().then((json) {
+      json.docs.forEach((record) {
+        insertToTopics(
+            topic_grade: record.data()['topic_grade'],
+            topic_term: record.data()['topic_term'],
+            topic_name: record.data()['topic_name']);
+        // topicsList.add(TopicsModel.fromJson(record.data()));
+        // print('************** record.data() ${record.data()}');
+        // print('************** topicsmodel ${topicsList[0].topic_grade}');
+        // print('recordFromLocal*********** ${topics[0].topic_name}');
+      });
+      emit(GetTopicSuccessState());
+      print(topicsList.length);
+    }).catchError((error) {
+      print(error.toString());
+      emit(GetTopicErrorState());
+    });
   }
 }

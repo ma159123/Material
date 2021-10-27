@@ -1,10 +1,8 @@
-
-class SubjectModel{
+class SubjectModel {
   String name;
   String icon;
   SubjectModel({
-  required this.name,
-  required this.icon,
-});
-
+    required this.name,
+    required this.icon,
+  });
 }

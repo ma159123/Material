@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:motabea/layout/motabea_app/cubit/cubit.dart';
@@ -22,12 +24,12 @@ class _PdfViewState extends State<PdfView> {
     // PDFViewController pdfViewController=0 as PDFViewController;
     return BlocConsumer<MotabeaCubit, MotabeaStates>(
       listener: (BuildContext context, state) {},
-      builder: (BuildContext context,  state) {
+      builder: (BuildContext context, state) {
         return Scaffold(
             appBar: AppBar(
               title: Text('my pdf'),
             ),
-            body: SfPdfViewer.asset(widget.path));
+            body: SfPdfViewer.file(File(widget.path)));
       },
     );
   }
