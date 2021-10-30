@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:motabea/layout/motabea_app/cubit/states.dart';
 import 'package:motabea/models/lec_model.dart';
 import 'package:motabea/models/lecture_model.dart';
+import 'package:motabea/models/home_subject_model.dart';
 import 'package:motabea/models/subject_model.dart';
 import 'package:motabea/models/topics_model.dart';
 import 'package:motabea/modules/pdf_view.dart';
@@ -53,29 +54,29 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
     emit(AppChangeVisiSuccessState());
   }
 
-  SubjectModel? subjectModel;
-  List<SubjectModel> listSubject = [
-    SubjectModel(
+  HomeSubjectModel? subjectModel;
+  List<HomeSubjectModel> listSubject = [
+    HomeSubjectModel(
       name: 'English',
       icon: 'assets/images/literature.png',
     ),
-    SubjectModel(
+    HomeSubjectModel(
       name: 'programmig',
       icon: 'assets/images/programming.png',
     ),
-    SubjectModel(
+    HomeSubjectModel(
       name: 'math',
       icon: 'assets/images/math.png',
     ),
-    SubjectModel(
+    HomeSubjectModel(
       name: 'physics',
       icon: 'assets/images/relativity.png',
     ),
-    SubjectModel(
+    HomeSubjectModel(
       name: 'business',
       icon: 'assets/images/corporate.png',
     ),
-    SubjectModel(
+    HomeSubjectModel(
       name: 'chemistry',
       icon: 'assets/images/test-tube.png',
     ),
@@ -279,11 +280,14 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
   ///
 
   Database? dataB;
+  List topicsNames = ['English', 'Programming'];
+
   List<TopicsModel> topicsLocal = [];
 
   // Map<String,TopicsModel> topics = {};
   // Map<String, List<LecModel>> subjects = {};
-  List<LecModel> englishLocal = [];
+  // List<List<LecModel>> subjectsLocal = [];
+  List<SubjectLecturesModel> subjectsLocal = [];
 
   void createDatabase() {
     openDatabase(
@@ -306,23 +310,26 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
           print('Error When Creating topic Table ${error.toString()}');
         });
 
-        getTopicsNames();
-        //creating subjects table
-        await dataB
-            .execute(
-                'CREATE TABLE English (id INTEGER PRIMARY KEY, lec_date TEXT, lec_material TEXT, lec_name TEXT, isDownloaded BOOLEAN)')
-            .then((value) {
-          print('English table created');
-        }).catchError((error) {
-          print('Error When Creating English Table ${error.toString()}');
-        });
+        // creating subjects table
+        for (int index = 0; index < topicsNames.length; index++) {
+          await dataB
+              .execute(
+                  'CREATE TABLE ${topicsNames[index]} (id INTEGER PRIMARY KEY, lec_date TEXT, lec_material TEXT, lec_name TEXT, isDownloaded BOOLEAN)')
+              .then((value) {
+            print('${topicsNames[index]} table created');
+          }).catchError((error) {
+            print(
+                'Error When Creating ${topicsNames[index]} Table ${error.toString()}');
+          });
+        }
+
 
         print('database created');
       },
       onOpen: (database) {
         getDataFromDatabase(database);
         saveFirestoreTopicsToSqflite();
-        getEnglish();
+        getSubjects();
         print('database opened');
       },
     ).then((value) {
@@ -359,16 +366,18 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
 
   // lec_date TEXT, lec_material TEXT, lec_name TEXT, isDownloaded BOOLEAN
 
-  insertToEnglish({
+  insertToSubject({
     String lec_date = '',
     required String lec_material,
     required String lec_name,
+    required int index,
     bool isDownloaded = false,
   }) async {
+    // 'INSERT INTO topics(topic_grade, topic_term, topic_name) VALUES("$topic_grade", "$topic_term", "$topic_name")',
     await dataB!.transaction((txn) {
       txn
           .rawInsert(
-        'INSERT INTO English(lec_date, lec_material, lec_name, isDownloaded) VALUES("$lec_date", "$lec_material", "$lec_name", $isDownloaded)',
+        'INSERT INTO ${topicsNames[index]}(lec_date, lec_material, lec_name, isDownloaded) VALUES("$lec_date", "$lec_material", "$lec_name", $isDownloaded)',
       )
           .then((value) {
         print('$value inserted successfully');
@@ -378,20 +387,20 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
       }).catchError((error) {
         print('Error When Inserting New Record ${error.toString()}');
       });
-    return  Future.delayed(const Duration(microseconds: 1), (){});
+      return Future.delayed(const Duration(microseconds: 1), () {});
       // return Future(fun());
     });
   }
 
-  void getDataFromDatabase(Database dataB) async{
+  void getDataFromDatabase(Database dataB) async {
     topicsLocal = [];
-    englishLocal = [];
+    subjectsLocal = [];
 
     emit(AppGetDatabaseLoadingState());
 
     // returns a List<Map>  = Json or table ,,,
     // map<String, dynamic> = record
-   await dataB.rawQuery('SELECT * FROM topics').then((recordsJson) {
+    await dataB.rawQuery('SELECT * FROM topics').then((recordsJson) {
       recordsJson.forEach((record) {
         topicsLocal.add(TopicsModel.fromJson(record));
         print('record*********** $record');
@@ -401,21 +410,16 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
       emit(AppGetDatabaseState());
     });
 
-    await dataB.rawQuery('SELECT * FROM English').then((recordsJson) {
-      recordsJson.forEach((record) {
-        englishLocal.add(LecModel.fromJson(record));
-        print('record*********** $record');
-        print('recordFromLocal*********** ${englishLocal[0].lec_material}');
-      });
+     for (int index = 0; index < topicsNames.length; index++) {
+    print('************length ${topicsNames.length}');
+    await dataB.rawQuery('SELECT * FROM ${topicsNames[index]}').then((recordsJson) {
+      subjectsLocal.add(SubjectLecturesModel.fromJson(recordsJson));
+      print('lec material -----*** ${subjectsLocal[index].subjectLectures[0].lec_material}');
 
       emit(AppGetDatabaseState());
-    });
-
-
-
-
-}
-
+    }).catchError((error) => print("errorrrrrrrrrr ${error.toString()}"));
+     }
+  }
 
   // void updateData({
   //   @required String status,
@@ -442,7 +446,6 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
   void saveFirestoreTopicsToSqflite() async {
     FirebaseFirestore.instance.collection('topics').get().then((json) {
       json.docs.forEach((record) {
-        topicsNames.add(record.data()['topic_name']);
         insertToTopics(
             topic_grade: record.data()['topic_grade'],
             topic_term: record.data()['topic_term'],
@@ -459,7 +462,6 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
     });
   }
 
-  List topicsNames = [];
   void getTopicsNames() async {
     topicsNames = [];
     FirebaseFirestore.instance.collection('topics').get().then((json) {
@@ -473,27 +475,32 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
     });
   }
 
-
-
   // List<LecModel> englishLectures = [];
 
-  void getEnglish() async {
+  void getSubjects() async {
     // englishLectures = [];
-    FirebaseFirestore.instance.collection('English').get().then((json) {
-      json.docs.forEach((record) {
-        insertToEnglish(
-            lec_material: record.data()['lec_material'],
-            lec_name: record.data()['lec_name'],
-            lec_date: record.data()['lec_date']);
-        // topicsList.add(TopicsModel.fromJson(record.data()));
-        // print('************** record.data() ${record.data()}');
-        // print('************** topicsmodel ${topicsList[0].topic_grade}');
-        // print('recordFromLocal*********** ${topics[0].topic_name}');
+
+    for (int index = 0; index < topicsNames.length; index++) {
+      FirebaseFirestore.instance
+          .collection(topicsNames[index])
+          .get()
+          .then((json) {
+        json.docs.forEach((record) {
+          insertToSubject(
+              lec_material: record.data()['lec_material'],
+              lec_name: record.data()['lec_name'],
+              lec_date: record.data()['lec_date'],
+              index: index);
+          // topicsList.add(TopicsModel.fromJson(record.data()));
+          // print('************** record.data() ${record.data()}');
+          // print('************** topicsmodel ${topicsList[0].topic_grade}');
+          // print('recordFromLocal*********** ${topics[0].topic_name}');
+        });
+        emit(GetSubjectSuccessState());
+      }).catchError((error) {
+        print(error.toString());
+        emit(GetSubjectErrorState());
       });
-      emit(GetSubjectSuccessState());
-    }).catchError((error) {
-      print(error.toString());
-      emit(GetSubjectErrorState());
-    });
+    }
   }
 }
