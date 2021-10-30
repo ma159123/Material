@@ -264,6 +264,7 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
   }
 
   String filePath = "";
+
   Future<File> _storeFile(String url, List<int> bytes) async {
     final filename = basename(url);
     final dir = await getApplicationDocumentsDirectory();
@@ -278,26 +279,25 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
   ///
 
   Database? dataB;
-  List<TopicsModel> topics = [];
+  List<TopicsModel> topicsLocal = [];
+
   // Map<String,TopicsModel> topics = {};
   // Map<String, List<LecModel>> subjects = {};
-  List<LecModel> subjects = [];
+  List<LecModel> englishLocal = [];
 
   void createDatabase() {
     openDatabase(
       'materials.db',
       version: 1,
-      onCreate: (dataB, version) {
+      onCreate: (dataB, version) async {
         // id integer
         // title String
         // date String
         // time String
         // status String
-        print('database created');
 
         //creating topics table
-
-        dataB
+        await dataB
             .execute(
                 'CREATE TABLE topics (id INTEGER PRIMARY KEY, topic_grade INTEGER, topic_term INTEGER, topic_name TEXT)')
             .then((value) {
@@ -305,19 +305,24 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
         }).catchError((error) {
           print('Error When Creating topic Table ${error.toString()}');
         });
+
+        getTopicsNames();
         //creating subjects table
-        dataB
+        await dataB
             .execute(
-                'CREATE TABLE subjects (id INTEGER PRIMARY KEY, lec_date TEXT, lec_material TEXT, lec_name TEXT, isDownloaded BOOLEAN)')
+                'CREATE TABLE English (id INTEGER PRIMARY KEY, lec_date TEXT, lec_material TEXT, lec_name TEXT, isDownloaded BOOLEAN)')
             .then((value) {
-          print('Subject table created');
+          print('English table created');
         }).catchError((error) {
-          print('Error When Creating Subject Table ${error.toString()}');
+          print('Error When Creating English Table ${error.toString()}');
         });
+
+        print('database created');
       },
       onOpen: (database) {
         getDataFromDatabase(database);
-        getTopics();
+        saveFirestoreTopicsToSqflite();
+        getEnglish();
         print('database opened');
       },
     ).then((value) {
@@ -354,7 +359,7 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
 
   // lec_date TEXT, lec_material TEXT, lec_name TEXT, isDownloaded BOOLEAN
 
-  insertToSubjects({
+  insertToEnglish({
     String lec_date = '',
     required String lec_material,
     required String lec_name,
@@ -363,7 +368,7 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
     await dataB!.transaction((txn) {
       txn
           .rawInsert(
-        'INSERT INTO subjects(lec_date, lec_material, lec_name, isDownloaded) VALUES("$lec_date", "$lec_material", "$lec_name", $isDownloaded)',
+        'INSERT INTO English(lec_date, lec_material, lec_name, isDownloaded) VALUES("$lec_date", "$lec_material", "$lec_name", $isDownloaded)',
       )
           .then((value) {
         print('$value inserted successfully');
@@ -373,29 +378,44 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
       }).catchError((error) {
         print('Error When Inserting New Record ${error.toString()}');
       });
-
-      return Future(fun());
+    return  Future.delayed(const Duration(microseconds: 1), (){});
+      // return Future(fun());
     });
   }
 
-  void getDataFromDatabase(Database dataB) {
-    topics = [];
-    subjects = [];
+  void getDataFromDatabase(Database dataB) async{
+    topicsLocal = [];
+    englishLocal = [];
 
     emit(AppGetDatabaseLoadingState());
 
     // returns a List<Map>  = Json or table ,,,
     // map<String, dynamic> = record
-    dataB.rawQuery('SELECT * FROM topics').then((recordsJson) {
+   await dataB.rawQuery('SELECT * FROM topics').then((recordsJson) {
       recordsJson.forEach((record) {
-        topics.add(TopicsModel.fromJson(record));
+        topicsLocal.add(TopicsModel.fromJson(record));
         print('record*********** $record');
-        print('recordFromLocal*********** ${topics[0].topic_name}');
+        print('recordFromLocal*********** ${topicsLocal[0].topic_name}');
       });
 
       emit(AppGetDatabaseState());
     });
-  }
+
+    await dataB.rawQuery('SELECT * FROM English').then((recordsJson) {
+      recordsJson.forEach((record) {
+        englishLocal.add(LecModel.fromJson(record));
+        print('record*********** $record');
+        print('recordFromLocal*********** ${englishLocal[0].lec_material}');
+      });
+
+      emit(AppGetDatabaseState());
+    });
+
+
+
+
+}
+
 
   // void updateData({
   //   @required String status,
@@ -419,11 +439,10 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
   //   });
   // }
 
-  List<TopicsModel> topicsList = [];
-  void getTopics() async {
-    topicsList = [];
+  void saveFirestoreTopicsToSqflite() async {
     FirebaseFirestore.instance.collection('topics').get().then((json) {
       json.docs.forEach((record) {
+        topicsNames.add(record.data()['topic_name']);
         insertToTopics(
             topic_grade: record.data()['topic_grade'],
             topic_term: record.data()['topic_term'],
@@ -434,10 +453,47 @@ class MotabeaCubit extends Cubit<MotabeaStates> {
         // print('recordFromLocal*********** ${topics[0].topic_name}');
       });
       emit(GetTopicSuccessState());
-      print(topicsList.length);
     }).catchError((error) {
       print(error.toString());
       emit(GetTopicErrorState());
+    });
+  }
+
+  List topicsNames = [];
+  void getTopicsNames() async {
+    topicsNames = [];
+    FirebaseFirestore.instance.collection('topics').get().then((json) {
+      json.docs.forEach((record) {
+        topicsNames.add(record.data()['topic_name']);
+      });
+      emit(GetTopicsNamesErrorState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(GetTopicsNamesErrorState());
+    });
+  }
+
+
+
+  // List<LecModel> englishLectures = [];
+
+  void getEnglish() async {
+    // englishLectures = [];
+    FirebaseFirestore.instance.collection('English').get().then((json) {
+      json.docs.forEach((record) {
+        insertToEnglish(
+            lec_material: record.data()['lec_material'],
+            lec_name: record.data()['lec_name'],
+            lec_date: record.data()['lec_date']);
+        // topicsList.add(TopicsModel.fromJson(record.data()));
+        // print('************** record.data() ${record.data()}');
+        // print('************** topicsmodel ${topicsList[0].topic_grade}');
+        // print('recordFromLocal*********** ${topics[0].topic_name}');
+      });
+      emit(GetSubjectSuccessState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(GetSubjectErrorState());
     });
   }
 }

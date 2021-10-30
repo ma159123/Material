@@ -31,3 +31,11 @@ class AppInsertDatabaseState extends MotabeaStates {}
 class AppGetDatabaseLoadingState extends MotabeaStates {}
 
 class AppGetDatabaseState extends MotabeaStates {}
+class GetSubjectErrorState extends MotabeaStates {}
+
+class GetSubjectSuccessState extends MotabeaStates {}
+
+class GetTopicsNamesErrorState extends MotabeaStates {}
+
+class GetTopicsNamesSuccessState extends MotabeaStates {}
+
